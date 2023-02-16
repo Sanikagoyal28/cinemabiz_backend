@@ -31,7 +31,29 @@ const login = async(req, res)=>{
         return res.status(500).json({success:false, msg:err});
     }
 }
+const forgotPassword = async(req, res)=>{
+    try{
+        const {email} = req.body;
+
+        if(!email){
+            return res.status(400).json({success:false, msg:"Email is required"})
+        }
+
+        const user = await User.findOne({email:email})
+
+        if(!user || (user && !user.isSignedUp)){
+            return res.status(400).json({success:false, msg:"User not found by this email"})
+        }
+        
+        //generate otp for the email
+
+    }
+    catch(err){
+        return res.status(500).json({success:false, msg:err});
+    }
+}
 
 module.exports = {
-    login
+    login,
+    forgotPassword
 }
