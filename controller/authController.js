@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken")
 const otpGenerator = require("otp-generator")
 const mailer = require("../middleware/mailer")
 require("dotenv").config();
+const regexEmail= /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+const regexPassword =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 const login = async(req, res)=>{
     try{
@@ -42,6 +44,9 @@ const forgotPassword = async(req, res)=>{
             return res.status(400).json({success:false, msg:"Email is required"})
         }
 
+        if(!regexEmail.test(email))
+        return res.status(400).json({success:false, msg:"Invalid Email format"})
+
         const user = await User.findOne({email:email})
 
         if(!user || (user && !user.isSignedUp)){
@@ -56,6 +61,7 @@ const forgotPassword = async(req, res)=>{
                 digits:true,
             })
         mailer.sendOtp(email, mailedOtp)
+        console.log(mailedOtp)
 
         const otpExpire = Date.now() + 300000;
 
@@ -66,6 +72,14 @@ const forgotPassword = async(req, res)=>{
             }}
             )
             console.log(otpModel)
+
+            if(otpModel.modifiedCount==0){
+                await Otp.create({
+                    email:email,
+                    otp:mailedOtp.toString(),
+                    expiry:otpExpire
+                })
+            }
 
             return res.status(200).json({success:true, msg:`Otp is sent successfully on ${email}`})
     }
@@ -102,11 +116,36 @@ const otpVerify = async(req,res)=>{
     }
 }
 
+const resetPassword = async(req, res)=>{
+    try{
+        const {email, password} = req.body;
 
+        if(!password)
+        return res.status(400).json({success:false, msg:"Password is required"})
 
+        // if(!regexPassword.test(password)) // check for validaation ?
+        // return res.status(400).json({success:false, msg:"Invalid Password format"})
+
+        const pass = await bcrypt.hash(password,12)
+
+        const user = await User.findOneAndUpdate({email:email},{
+            $set:{
+                password:pass
+            }
+        } );
+
+        if(!user || (user && !user.isSignedUp))
+        return res.status(400).json({success:false, msg:"User doesn't found by this email"})
+
+        return res.status(200).json({success:true, msg:"Password changed successfully"})
+    }
+    catch(err){
+        return res.status(500).json({success:false, msg:err})
+    }
+}
 module.exports = {
     login,
     forgotPassword,
-    otpVerify,
-    
+    otpVerify, 
+    resetPassword 
 }

@@ -12,7 +12,6 @@ const otpSchema = new mongoose.Schema({
     expiry:{
         type:Number
     }
-
 })
 
 module.exports = mongoose.model("otp", otpSchema)
