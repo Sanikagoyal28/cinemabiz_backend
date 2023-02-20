@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer")
 const sendOtp = async(email, otp)=>{
     console.log(email)
     const msg = {
-        from:"spaces.inc.si@gmail.com",
+        from:"sanikagoyal9@gmail.com",
         to:email, 
         subject:"Reset your Password",
         text: "Reset your Password",

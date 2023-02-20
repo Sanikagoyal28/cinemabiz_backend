@@ -56,7 +56,7 @@ const forgotPassword = async(req, res)=>{
             return res.status(400).json({success:false, msg:"User not found by this email"})
         }
         
-        const mailedOtp = otpGenerator.generate(4,
+        const mailedOtp = otpGenerator.generate(6,
             {
                 upperCaseAlphabets:false,
                 lowerCaseAlphabets:false,
@@ -175,7 +175,7 @@ const signUp = async(req, res)=>{
             })
         }
     
-        const mailedOtp = otpGenerator.generate(4,{
+        const mailedOtp = otpGenerator.generate(6,{
                 upperCaseAlphabets:false,
                 lowerCaseAlphabets:false,
                 specialChars:false,
