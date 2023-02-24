@@ -2,6 +2,11 @@ const mongoose = require("mongoose")
 const { ObjectId } = mongoose.Schema.Types;
 
 const cinemaSchema = new mongoose.Schema({
+    admin_id:{
+        type:ObjectId,
+        ref:'admin',
+        required:true
+    },
     cinema_name: {
         type: String,
         required: true

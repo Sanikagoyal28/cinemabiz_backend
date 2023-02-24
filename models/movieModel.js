@@ -37,9 +37,9 @@ const movieSchema = new mongoose.Schema({
     movie_info: {
         type: String
     },
-    location: {
-        type: String
-    },
+    // location: {
+    //     type: String
+    // },
     movie_cast: [{
       type:ObjectId,
       ref:'moviecast'

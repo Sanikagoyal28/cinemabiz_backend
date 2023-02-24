@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const movieRoutes = require('./routes/movieRoutes')
 const authRoutes = require("./routes/authRoutes")
+const adminRoutes = require('./routes/adminRoutes')
+const cinemaRoutes = require('./routes/cinemaRoutes')
 const cors = require("cors")
 const port = 3001;
 const DB = "mongodb+srv://sanika:abcd1234@cluster0.kxfedro.mongodb.net/cinemabiz";
@@ -23,7 +25,9 @@ mongoose.connect(DB)
     .catch((err) => {
         console.log(err)
     });
-// app.listen(port)
+
 app.use(authRoutes)
 app.use(movieRoutes)
+app.use('/admin',adminRoutes)
+app.use(cinemaRoutes)
 
