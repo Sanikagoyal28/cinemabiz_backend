@@ -104,6 +104,10 @@ const otpVerify = async(req,res)=>{
         const emailOtp = await Otp.findOne({email:email.toLowerCase()})
         const user = await User.findOne({email:email.toLowerCase()})
 
+        if(!user || (user && !user.isSignedUp)){
+            return res.status(400).json({success:false, msg:"User not found by this email"})
+        }
+
         if(emailOtp.otp!=otp)
         return res.status(400).json({success:false, msg:"Incorrect Otp"})
 
