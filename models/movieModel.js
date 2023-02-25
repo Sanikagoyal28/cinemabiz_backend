@@ -5,7 +5,7 @@ const movieSchema = new mongoose.Schema({
     cinema_id: {
         type: ObjectId,
         ref:'cinemas',
-        required:true
+        // required:true
     },
     movie_name: {
         type: String,
@@ -37,9 +37,6 @@ const movieSchema = new mongoose.Schema({
     movie_info: {
         type: String
     },
-    // location: {
-    //     type: String
-    // },
     movie_cast: [{
       type:ObjectId,
       ref:'moviecast'
@@ -52,6 +49,3 @@ const movieSchema = new mongoose.Schema({
 })
 
 module.exports = mongoose.model('movies', movieSchema)
-
-
-// movie.find(by id).populate(cast) ?

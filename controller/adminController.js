@@ -40,32 +40,22 @@ const addCinema = async (req, res) =>{
 const addMovie = async (req, res) => {
 
     try{
-        const {cinema_id, movie_name, movie_rating, movie_language, movie_genre, movie_duration, movie_release, movie_info, movie_cast} = req.body
+        const {cinema_id, movie_id} = req.body
 
         const cinema = await Cinema.findById(cinema_id)
     
         if (!cinema)
             return res.status(400).json({ success: false, msg: "No Cinema by this Id found" })
     
-        const movie = await Movie.findOne({ movie_name })
+        const movie = await Movie.findById({_id:movie_id })
     
-        if (movie)
-            return res.status(400).json({ success: false, msg: "Movie by this name already exists" })
-    
-        const new_movie = await Movie.create({
-            cinema_id,
-            movie_name:movie_name.toLowerCase(),
-            movie_rating,
-            movie_cast,
-            movie_language,
-            movie_duration,
-            movie_release,
-            movie_info,
-            movie_genre
-        })
+        if (!movie)
+            return res.status(400).json({ success: false, msg: "No such movie found" })
+
+            //search for movie in cinema
     
         await Cinema.findByIdAndUpdate(cinema_id, {
-            $addToSet:{cinema_movies:new_movie._id}
+            $addToSet:{cinema_movies:movie_id}
         })
     
         return res.status(200).json({success:true, msg:"New movie added successfully"})

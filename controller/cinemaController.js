@@ -1,5 +1,5 @@
 const Cinema = require('../models/cinemaModel');
-const { populate } = require('../models/userModel');
+const movieCastModel = require('../models/movieCastModel');
 
 const getCinemaAndMovie = async (req, res) => {
     try {
@@ -11,15 +11,10 @@ const getCinemaAndMovie = async (req, res) => {
 
         const cinemas = await Cinema.find({ cinema_location: location.toLowerCase() }).
             populate({
-                path: 'cinema_movies',
-                populate: {
-                    path: 'movie_crew'
-                },
-                populate: {
-                    path: 'movie_cast',
-                }
+                path: 'cinema_movies'
             })
 
+            // combine all movie arrays of cinema into movies
             var movies = [];
             cinemas.map((c)=>{
                 c.cinema_movies.map((m)=>{
@@ -27,9 +22,10 @@ const getCinemaAndMovie = async (req, res) => {
                 })
             })
 
-            console.log(movies)
+            // find unique movies from array
+            const movie = [...new Set(movies.map((m)=>m))];
 
-        return res.status(200).json({ success: true, cinema, movies })
+        return res.status(200).json({ success: true, cinema, movie })
     }
     catch (err) {
         return res.status(500).json({ success: false, msg: err })
