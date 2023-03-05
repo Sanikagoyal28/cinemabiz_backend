@@ -43,6 +43,9 @@ const addMovie = async (req, res) => {
         const {cinema_id, movie_id} = req.body
 
         const cinema = await Cinema.findById(cinema_id)
+
+        if(!(cinema_id && movie_id))
+        return res.status(400).json({success:false, msg:"Inputs are required"})
     
         if (!cinema)
             return res.status(400).json({ success: false, msg: "No Cinema by this Id found" })
@@ -52,7 +55,9 @@ const addMovie = async (req, res) => {
         if (!movie)
             return res.status(400).json({ success: false, msg: "No such movie found" })
 
-            //search for movie in cinema
+        //search for movie in cinema
+        const movie_in_cinema = await Cinema.findOne({cinema_id, cinema_movies:{$elemMatch:movie_id}})
+        console.log(movie_in_cinema)
     
         await Cinema.findByIdAndUpdate(cinema_id, {
             $addToSet:{cinema_movies:movie_id}
@@ -66,7 +71,6 @@ const addMovie = async (req, res) => {
 }
 
 const addCast = async (req, res)=>{
-
     try{
         const {movie_id , actor_name} = req.body;
 
@@ -99,7 +103,6 @@ const addCast = async (req, res)=>{
 }
 
 const addCrew = async (req, res)=>{
-
     try{
         const {movie_id , crew_name} = req.body;
 

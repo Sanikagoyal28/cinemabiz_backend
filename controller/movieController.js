@@ -1,48 +1,63 @@
 const Movie = require('../models/movieModel');
 const Cinema = require('../models/cinemaModel');
+const cloudinary = require('cloudinary').v2
 
-const MOVIES = async (req, res)=>{
-    try{
-        const {movie_name, movie_rating, movie_language, movie_genre, movie_duration, movie_release, movie_info, movie_cast} = req.body
+const create_movie = async (req, res) => {
+    try {
+        const { movie_name, movie_rating, movie_language, movie_genre, movie_duration, movie_release, movie_info, movie_cast } = req.body
 
-        const movie = await Movie.findOne({ movie_name })
-    
+        const movie = await Movie.findOne({ movie_name: movie_name.toLowerCase() })
+
         if (movie)
             return res.status(400).json({ success: false, msg: "Movie by this name already exists" })
-    
-        const new_movie = await Movie.create({
-            movie_name:movie_name.toLowerCase(),
-            movie_rating,
-            movie_cast,
-            movie_language,
-            movie_duration,
-            movie_release,
-            movie_info,
-            movie_genre
-        })
-    
-        return res.status(200).json({success:true, msg:"New movie created successfully"})
+
+        // upload a file     
+        let movie_image = null;
+        const file = req.files? req.files.movie_image: null;
+        
+        if(file){
+            const res = await cloudinary.uploader.upload(file.tempFilePath)
+            if(res)
+            movie_image = res.url
+        }
+
+        if (!movie) {
+            await Movie.create({
+                movie_name: movie_name.toLowerCase(),
+                movie_rating,
+                movie_cast,
+                movie_language,
+                movie_duration,
+                movie_release,
+                movie_info,
+                movie_genre,
+                movie_image
+            })
+        }
+
+        return res.status(200).json({ success: true, msg: "New movie created successfully" })
     }
-    catch(err){
-        return res.status(500).json({success:false, msg:err})
+    catch (err) {
+        return res.status(500).json({ success: false, msg: err })
     }
 }
 
-const get_one_movie = async (req, res)=>{
-    try{
+const get_one_movie = async (req, res) => {
+    try {
+
         const { id } = req.params;
 
-        const movie = await Movie.findById(id).
-        populate('movie_cast', 'movie_crew')
+        const movie = await Movie.findById(id,{_id:0}).
+            populate('movie_cast', {_id:0}).populate('movie_crew')
 
-        if(!movie)
-        return res.status(400).json({success:false, msg:"No Movie by this Id found"})
-          
-        return res.status(200).json({success:true, movie})
+        if (!movie)
+            return res.status(400).json({ success: false, msg: "No Movie by this Id found" })
+
+        return res.status(200).json({ success: true, movie })
 
     }
-    catch(err){
-        return res.status(500).json({success:false, msg:err})
+    catch (err) {
+        return res.status(500).json({ success: false, msg: err })
     }
 }
 
@@ -57,31 +72,50 @@ const get_movies = async (req, res) => {
                 path: 'cinema_movies'
             })
 
-            // combine all movie arrays of cinema into movies
-            var movies = [];
-            cinemas.map((c)=>{
-                c.cinema_movies.map((m)=>{
-                    movies.push(m)
-                })
+        // combine all movie arrays of cinema into movies
+        var all_movies = [];
+        cinemas.map((c) => {
+            c.cinema_movies.map((m) => {
+                all_movies.push(m)
             })
+        })
 
-            // find unique movies from array
-            const movie = [...new Set(movies.map((m)=>m))];
+        // find unique movies from array
+        const movies = await [...new Set(all_movies.map((m) => m))];
 
-            var languages = [];
-            var genre = [];
-            movie.map((m)=>{
-                m.movie_genre.map((g)=>{
-                    genre.push(g)
-                })
-                m.movie_language.map((l)=>{
-                    languages.push(l)
-                })
+        var all_languages = [];
+        var all_genre = [];
+        movies.map((m) => {
+            m.movie_genre.map((g) => {
+                all_genre.push(g)
             })
-            console.log(languages)
-            console.log(genre)
+            m.movie_language.map((l) => {
+                all_languages.push(l)
+            })
+        })
 
-        return res.status(200).json({ success: true, movie })
+        // language filter
+        const languages = await [...new Set(all_languages.map((m) => m))];
+
+        // genre filter
+        const genre = await [...new Set(all_genre.map((m) => m))];
+
+        return res.status(200).json({ success: true, movies, languages, genre })
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, msg: err })
+    }
+}
+
+const language_movie = async (req, res)=>{
+    try{
+        const {language, location} = req.params;
+
+        db.Cinema.aggregate([
+            { $match :{cinema_location:location}}
+        ])
+
+
     }
     catch (err) {
         return res.status(500).json({ success: false, msg: err })
@@ -91,5 +125,5 @@ const get_movies = async (req, res) => {
 module.exports = {
     get_one_movie,
     get_movies,
-    MOVIES
+    create_movie
 }
