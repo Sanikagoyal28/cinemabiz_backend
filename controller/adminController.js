@@ -17,13 +17,24 @@ const addCinema = async (req, res) =>{
     
         if (cinema)
             return res.status(400).json({ success: false, msg: "Cinema by this name already exists" })
+
+        // upload a file     
+        let cinema_image = null;
+        const file = req.files? req.files.cinema_image: null;
+        
+        if(file){
+            const res = await cloudinary.uploader.upload(file.tempFilePath)
+            if(res)
+            cinema_image = res.url
+        }
     
         const new_cinema = await Cinema.create({
             admin_id,
             cinema_name:cinema_name.toLowerCase(),
             cinema_rating,
             cinema_distance,
-            cinema_location:cinema_location.toLowerCase()
+            cinema_location:cinema_location.toLowerCase(),
+            cinema_image
         })
     
         await Admin.findByIdAndUpdate(admin_id, {
@@ -84,10 +95,21 @@ const addCast = async (req, res)=>{
     
         if(!movie)
             return res.status(400).json({ success: false, msg: "No movie by this Id found" })
+
+        // upload a file     
+        let actor_image = null;
+        const file = req.files? req.files.actor_image: null;
+        
+        if(file){
+            const res = await cloudinary.uploader.upload(file.tempFilePath)
+            if(res)
+            actor_image = res.url
+        }
     
         const moviecast =  await MovieCast.create({
             movie_id,
             actor_name:actor_name.toLowerCase(),
+            actor_image
         })
     
         await Movie.findByIdAndUpdate(movie_id, {
@@ -110,10 +132,21 @@ const addCrew = async (req, res)=>{
     
         if(!movie)
             return res.status(400).json({ success: false, msg: "No movie by this Id found" })
+
+       // upload a file     
+        let crew_image = null;
+        const file = req.files? req.files.crew_image: null;
+        
+        if(file){
+            const res = await cloudinary.uploader.upload(file.tempFilePath)
+            if(res)
+            crew_image = res.url
+        }
     
         const moviecrew =  await MovieCrew.create({
             movie_id,
             crew_name:crew_name.toLowerCase(),
+            crew_image
         })
     
         await Movie.findByIdAndUpdate(movie_id, {

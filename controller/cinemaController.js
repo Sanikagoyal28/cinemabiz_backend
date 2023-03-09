@@ -7,7 +7,8 @@ const getCinemaAndMovie = async (req, res) => {
 
         //no location found
 
-        const cinema = await Cinema.find({ cinema_location: location.toLowerCase() })
+        var cinema = []
+        cinema = await Cinema.find({ cinema_location: location.toLowerCase() })
 
         const cinemas = await Cinema.find({ cinema_location: location.toLowerCase() }).
             populate({
@@ -23,7 +24,8 @@ const getCinemaAndMovie = async (req, res) => {
         })
 
         // find unique movies from array
-        const movie = [...new Set(movies.map((m) => m))];
+        var movie = []
+         movie = [...new Set(movies.map((m) => m))];
 
         return res.status(200).json({ success: true, cinema, movie })
     }
@@ -38,7 +40,8 @@ const get_cinemas = async (req, res) => {
 
         //no location found
 
-        const cinema = await Cinema.find({ cinema_location: location.toLowerCase() })
+        var cinema = []
+        cinema = await Cinema.find({ cinema_location: location.toLowerCase() })
 
         return res.status(200).json({ success: true, cinema })
 
@@ -81,6 +84,7 @@ const search_place = async (req, res) => {
         console.log(locations)
         const location = await [...new Set(locations.map((l)=>l))];
 
+        // duplicacy issue ????
         return res.status(200).json({ success: true, location })
     }
     catch (err) {

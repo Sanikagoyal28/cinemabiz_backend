@@ -27,6 +27,9 @@ const movieSchema = new mongoose.Schema({
     movie_image: {
         type: String
     },
+    movie_cover_image: {
+        type: String
+    },
     movie_votes: {
         type: String,
     },

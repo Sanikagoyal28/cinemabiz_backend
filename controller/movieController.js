@@ -81,7 +81,8 @@ const get_movies = async (req, res) => {
         })
 
         // find unique movies from array
-        const movies = await [...new Set(all_movies.map((m) => m))];
+        var movies = []
+        movies = await [...new Set(all_movies.map((m) => m))];
 
         var all_languages = [];
         var all_genre = [];
@@ -95,10 +96,12 @@ const get_movies = async (req, res) => {
         })
 
         // language filter
-        const languages = await [...new Set(all_languages.map((m) => m))];
+        var languages = []
+        languages = await [...new Set(all_languages.map((m) => m))];
 
         // genre filter
-        const genre = await [...new Set(all_genre.map((m) => m))];
+        var genre = []
+        genre = await [...new Set(all_genre.map((m) => m))];
 
         return res.status(200).json({ success: true, movies, languages, genre })
     }
@@ -111,11 +114,14 @@ const language_movie = async (req, res)=>{
     try{
         const {language, location} = req.params;
 
-        db.Cinema.aggregate([
-            { $match :{cinema_location:location}}
+        const cinema = await Cinema.aggregate([
+            { $match :{cinema_location:location}},
+
+            { $group:{name:cinema_name}}
         ])
-
-
+        console.log(cinema)
+        console.log("abcd")
+        return 
     }
     catch (err) {
         return res.status(500).json({ success: false, msg: err })
@@ -125,5 +131,6 @@ const language_movie = async (req, res)=>{
 module.exports = {
     get_one_movie,
     get_movies,
-    create_movie
+    create_movie,
+    language_movie
 }
